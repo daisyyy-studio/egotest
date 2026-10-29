@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>电子人格鉴定 · 你是哪种当代活人</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background: linear-gradient(160deg,#fff5f0 0%,#f0e8ff 100%);
+    color:#2a2535; min-height:100vh; line-height:1.6;
+  }
+  .page { display:none; min-height:100vh; padding:28px 22px 48px; max-width:480px; margin:0 auto; }
+  .page.active { display:block; }
+
+  /* 封面 */
+  #cover { text-align:center; padding-top:50px; }
+  #cover .badge {
+    display:inline-block; padding:6px 16px; background:#2a2535; color:#fff;
+    border-radius:20px; font-size:12px; margin-bottom:24px; letter-spacing:1px;
+  }
+  #cover h1 { font-size:42px; font-weight:900; letter-spacing:2px; margin-bottom:8px; }
+  #cover .sub { font-size:15px; color:#8b8099; margin-bottom:32px; }
+  #cover .card {
+    background:#fff; border-radius:20px; padding:24px; text-align:left;
+    box-shadow:0 8px 30px rgba(180,150,255,0.12); margin-bottom:28px;
+  }
+  #cover .card p { font-size:14px; margin-bottom:10px; color:#4a4258; }
+  #cover .card p:last-child { margin-bottom:0; }
+  #cover .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  #cover .tags span {
+    font-size:12px; padding:4px 10px; background:#f3edff; color:#7c5cbf;
+    border-radius:12px;
+  }
+  .btn-primary {
+    display:block; width:100%; padding:16px; background:linear-gradient(135deg,#7c5cbf,#b85cbf);
+    color:#fff; border:none; border-radius:14px; font-size:17px; font-weight:bold;
+    font-family:inherit; cursor:pointer; box-shadow:0 6px 20px rgba(124,92,191,0.3);
+  }
+  .btn-primary:active { transform:scale(0.98); }
+
+  /* 访问码 */
+  #access h2 { text-align:center; font-size:24px; font-weight:900; margin:30px 0 8px; }
+  #access .tip { text-align:center; font-size:13px; color:#8b8099; margin-bottom:28px; }
+  .code-inputs { display:flex; gap:10px; justify-content:center; margin-bottom:20px; }
+  .code-inputs input {
+    width:54px; height:64px; text-align:center; font-size:30px; font-weight:bold;
+    border:2px solid #e0d8f0; border-radius:12px; background:#fff; outline:none;
+  }
+  .code-inputs input:focus { border-color:#7c5cbf; }
+  #code-error { color:#e05a7a; text-align:center; font-size:13px; min-height:20px; margin-bottom:12px; }
+  #access .buy-hint {
+    margin-top:28px; padding:16px; background:#fff; border-radius:14px;
+    font-size:13px; color:#8b8099; text-align:center; line-height:1.8;
+    box-shadow:0 4px 16px rgba(180,150,255,0.1);
+  }
+  #access .buy-hint b { color:#7c5cbf; }
+
+  /* 答题 */
+  #quiz .progress-bar { height:6px; background:#e8e0f5; border-radius:3px; margin-bottom:8px; overflow:hidden; }
+  #quiz .progress-fill { height:100%; background:linear-gradient(90deg,#7c5cbf,#b85cbf); width:0%; transition:width .3s; border-radius:3px; }
+  #quiz .progress-text { font-size:12px; color:#8b8099; margin-bottom:28px; }
+  #quiz .q-text { font-size:20px; line-height:1.5; margin-bottom:32px; font-weight:800; }
+  .opt-btn {
+    display:block; width:100%; padding:18px; background:#fff;
+    border:none; border-radius:14px; margin-bottom:14px;
+    font-size:15px; text-align:left; font-family:inherit; cursor:pointer;
+    line-height:1.5; box-shadow:0 2px 10px rgba(180,150,255,0.08);
+  }
+  .opt-btn:active { background:#f8f3ff; }
+  .opt-btn .emoji { font-size:20px; margin-right:8px; }
+
+  /* 结果 */
+  #result { text-align:center; }
+  #result .icon { font-size:80px; margin:16px 0 12px; }
+  #result .label {
+    display:inline-block; padding:4px 14px; background:#2a2535; color:#fff;
+    border-radius:14px; font-size:12px; margin-bottom:12px;
+  }
+  #result .name { font-size:30px; font-weight:900; margin-bottom:8px; letter-spacing:1px; }
+  #result .slogan { font-size:15px; color:#b85cbf; margin-bottom:20px; font-weight:bold; }
+  #result canvas { margin:0 auto 10px; display:block; }
+  #result h3 { font-size:14px; color:#7c5cbf; margin:22px 0 10px; text-align:left; font-weight:800; }
+  #result .block {
+    background:#fff; border-radius:14px; padding:16px; text-align:left;
+    font-size:14px; margin-bottom:12px; box-shadow:0 2px 10px rgba(180,150,255,0.08);
+  }
+  #result .block.quote { text-align:center; font-size:15px; font-weight:bold; color:#b85cbf; }
+  #result .share-tip { font-size:12px; color:#8b8099; margin-top:18px; line-height:1.7; }
+  #restart { margin-top:18px; background:transparent; color:#8b8099; box-shadow:none; border:1px solid #e0d8f0; }
+</style>
+</head>
+<body>
+
+<!-- 封面 -->
+<div class="page active" id="cover">
+  <div class="badge">✨ 2026 最新人格鉴定</div>
+  <h1>电子人格鉴定</h1>
+  <div class="sub">你是哪种当代活人？</div>
+  <div class="card">
+    <p>📱 24 道真实场景题，测测你在这个电子时代是哪种人格。</p>
+    <p>🐒 吗喽打工人？👻 人间蒸发怪？还是 😐 情绪稳定怪物？</p>
+    <p style="color:#b85cbf;font-weight:bold;">测完你会发现：原来不止我一个人这样。</p>
+    <div class="tags">
+      <span>#MBTI已过时</span><span>#当代人图鉴</span><span>#准到离谱</span>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="goAccess()">开始鉴定 →</button>
+</div>
+
+<!-- 访问码 -->
+<div class="page" id="access">
+  <h2>🔐 解锁完整报告</h2>
+  <div class="tip">已购买者输入四位访问码</div>
+  <div class="code-inputs">
+    <input maxlength="1" type="number" inputmode="numeric" data-i="0">
+    <input maxlength="1" type="number" inputmode="numeric" data-i="1">
+    <input maxlength="1" type="number" inputmode="numeric" data-i="2">
+    <input maxlength="1" type="number" inputmode="numeric" data-i="3">
+  </div>
+  <div id="code-error"></div>
+  <button class="btn-primary" onclick="checkCode()">解锁我的人格</button>
+  <div class="buy-hint">
+    没码？去店铺拍下「电子人格鉴定」<br>
+    <b>付款后自动发四位访问码</b> · 一杯奶茶钱
+  </div>
+  <div style="margin-top:20px;font-size:12px;color:#b0a8c0;text-align:center;line-height:1.8;">
+    认准原创作者「汐汐学姐」，盗版为他人私自搬运，<br>
+    若买到盗版，请直接联系对应商家申请退款。
+  </div>
+</div>
+
+<!-- 答题 -->
+<div class="page" id="quiz">
+  <div class="progress-bar"><div class="progress-fill" id="pfill"></div></div>
+  <div class="progress-text" id="ptext">第 1 / 24 题</div>
+  <div class="q-text" id="qtext"></div>
+  <button class="opt-btn" id="optA" onclick="choose(0)"></button>
+  <button class="opt-btn" id="optB" onclick="choose(1)"></button>
+</div>
+
+<!-- 结果 -->
+<div class="page" id="result">
+  <div class="icon" id="rIcon"></div>
+  <div class="label">你的电子人格是</div>
+  <div class="name" id="rName"></div>
+  <div class="slogan" id="rSlogan"></div>
+  <canvas id="radar" width="280" height="280"></canvas>
+  <h3>▍人格档案</h3>
+  <div class="block" id="rProfile"></div>
+  <h3>▍你中招的日常</h3>
+  <div class="block" id="rDaily"></div>
+  <h3>▍给你的一句话</h3>
+  <div class="block quote" id="rQuote"></div>
+  <div class="share-tip">📸 截图保存，发给朋友看看你们是不是同款人格</div>
+  <button class="btn-primary" id="restart" onclick="restart()">再测一次</button>
+</div>
+
+<script>
+// ============== 配置区 ==============
+// 合法访问码——卖一个加一个
+const VALID_CODES = ["2623","1211","4558","2099","5461","2083","8088","9257","7481","8793","4167","9543","7100","6584","7550","5131","9285","8429","2906","3516","6252","8905","1238","5409","9366","2363","9619","6449","3482","6944","7879","9228","7612","9151","3066","7703","5537","7952","1418","3100","6929","5358","7255","4264","9810","7064","1758","5242","1424","3367","2457","4119","9881","2478","9284","9943","6498","2137","5539","3432","4009","3218","5558","9756","4174","9535","5817","1996","5677","5381","6482","6942","8957","2430","2299","5345","5900","3652","6600","4796","6018","2792","4546","7133","7867","2273","8835","1487","7375","1721","2687","6727","1909","2244","6123","6568","7819","6602","3964","6685"];
+
+// 六维
+const DIMS = ["电量","社交","情绪","精致","摆烂","搞钱"];
+
+// 8 个人格结果
+const TYPES = [
+  {
+    id:"mahou", icon:"🐒", name:"吗喽打工人",
+    slogan:"表面在上班，灵魂已下班",
+    scores:[30,40,50,50,95,40],
+    profile:"你就是传说中的「吗喽」——每天早起打工不是因为有梦想，是因为房租要交。上班如尸，下班复活。工资到账就是为了月底能活下去。你对这份工作没有感情，但对工资有。",
+    daily:"• 闹钟响了按掉三次，最后十分钟弹射起床\n• 上班核心技能：假装在忙\n• 午休是一天中最快乐的两小时\n• 周五下午开始飘，周一早上开始死\n• 工资到账第一天就开始还花呗",
+    quote:"「吗喽的命也是命。」"
+  },
+  {
+    id:"evaporate", icon:"👻", name:"人间蒸发怪",
+    slogan:"消息轮回，但人是真的",
+    scores:[50,20,60,40,70,50],
+    profile:"你的已读不回不是高冷，是你真的忘了。微信群 99+ 你从不点开，朋友发消息你三天后才回「啊？刚看到」。你不是孤僻，你只是活在自己的时区里，而且那个时区比别人慢 48 小时。",
+    daily:"• 微信常年免打扰，朋友以为你死了\n• 发朋友圈要分组，发完就忘\n• 电话恐惧症，看到来电直接慌\n• 约你出门至少提前一周，当天约一律不去\n• 被人说「你好高冷」其实你只是在打游戏",
+    quote:"「不是不理你，是我的灵魂还在路上。」"
+  },
+  {
+    id:"zen", icon:"😐", name:"情绪稳定怪物",
+    slogan:"天塌了也先吃个饭",
+    scores:[60,50,100,50,50,60],
+    profile:"你是朋友眼里的「定海神针」。天塌下来你第一反应是「哦」，被老板骂你回工位喝口水，谈恋爱分手你冷静一周就好了。不是没情绪，是你的情绪反应弧特别长，等它到了你已经睡了。",
+    daily:"• 朋友崩溃找你，你说「没事，会过去的」\n• 吵架从来吵不起来，对方自己气半天\n• 遇到任何事先吃顿好的\n• 别人以为你在生气，其实你只是在发呆\n• 你的情绪周期是：哦→嗯→算了",
+    quote:"「稳住，我们能赢——其实赢不赢都行。」"
+  },
+  {
+    id:"artist", icon:"📸", name:"朋友圈艺术家",
+    slogan:"生活可以糊弄，朋友圈必须精致",
+    scores:[70,60,60,100,30,40],
+    profile:"你不是在生活，你是在运营一个个人 IP。吃饭先拍照，出去玩必须出片，一条朋友圈编辑两小时。你对自己的要求很高，高到别人觉得你累，但你乐在其中。你在乎的不是别人怎么看你，是你自己心里那个「完美的我」。",
+    daily:"• 出门化妆一小时，拍照两小时，修图一小时\n• 朋友圈分组可见，仅展示三天\n• 吃东西先拍，凉了才吃\n• 穿搭要成套，包包要搭衣服\n• 旅行不是为了玩，是为了出素材",
+    quote:"「我可以不好，但我的朋友圈必须好看。」"
+  },
+  {
+    id:"toilet", icon:"🚽", name:"带薪如厕大师",
+    slogan:"厕所是我的第二个工位",
+    scores:[40,30,40,30,80,50],
+    profile:"你深谙打工人摸鱼哲学。工位是给老板看的，厕所才是属于你自己的。你在马桶上刷手机、回消息、思考人生，带薪如厕时长是你工资的一部分。你不是懒，你是在合法地回血。",
+    daily:"• 每天在厕所待 30 分钟起步\n• 领导路过自动切换工作界面\n• 电脑浏览器永远有两个窗口\n• 下班前五分钟开始收拾包\n• 开会时在下面偷偷刷手机",
+    quote:"「我在工位，但我的灵魂在厕所。」"
+  },
+  {
+    id:"emo", icon:"🌙", name:"深夜 emo 冠军",
+    slogan:"白天哈哈哈，晚上网抑云",
+    scores:[20,40,30,50,60,50],
+    profile:"你是昼夜交替型人格。白天是朋友里的开心果，晚上一关灯就开始思考人生。凌晨三点的朋友圈仅自己可见，那些矫情的话你第二天早上看了都想删。你不是抑郁，你只是夜晚比较诚实。",
+    daily:"• 凌晨两点还在刷手机，越刷越焦虑\n• 晚上写小作文，早上看了想注销账号\n• 白天嘻嘻哈哈，晚上 emo 到失眠\n• 听慢歌会哭，听情歌会想前任\n• 跟朋友说「我没事」，然后发一条伤感朋友圈",
+    quote:"「白天交给世界，深夜才属于我自己。」"
+  },
+  {
+    id:"jazz", icon:"🤪", name:"社交牛杂症患者",
+    slogan:"社牛社恐看心情切换",
+    scores:[70,80,60,50,50,50],
+    profile:"你是薛定谔的社牛。熟的人面前你是话痨，不熟的人面前你是哑巴。出门前想当社牛，到了现场想回家。你的社交状态取决于：今天的状态、对方是谁、以及你有没有喝够奶茶。",
+    daily:"• 和朋友在一起：全场最吵的那个\n• 和陌生人在一起：缩在角落装手机\n• 聚会前紧张，聚会后后悔没多说\n• 加了好友从不主动说话\n• 朋友说「你好会社交」，其实你在家缓了三天",
+    quote:"「我不是社恐，我只是社恐和社牛随机切换。」"
+  },
+  {
+    id:"cheap", icon:"🧱", name:"省钱省到抠门精",
+    slogan:"一毛钱都要算进命里",
+    scores:[40,40,60,30,60,100],
+    profile:"你是当代葛朗台。不是没钱，是花钱让你有罪恶感。外卖要凑满减，淘宝要比价三天，优惠券过期会心痛半年。你看起来抠，但其实你只是对钱有安全感。你不是不想花，是花了会睡不着觉。",
+    daily:"• 外卖必凑满减，差一块钱也要加个饮料\n• 淘宝比价三家，最后等双十一\n• 优惠券过期会心痛一晚上\n• 朋友 AA 算到小数点后两位\n• 手机壳用三年，屏幕碎了继续贴\n• 看到 9.9 包邮觉得自己赚了",
+    quote:"「该省省，该花花，坐公交去酒吧。」"
+  }
+];
+
+// 24 道题
+const QUESTIONS = [
+  { q:"周末早上醒来第一件事？",
+    A:{t:"摸手机，刷半小时再说", s:{摆烂:2,电量:-1}},
+    B:{t:"立刻起床，周末不能浪费", s:{电量:2,摆烂:-1}} },
+  { q:"老板突然在群里 @你，你的反应？",
+    A:{t:"假装没看见，下午再回", s:{摆烂:2,情绪:1}},
+    B:{t:"秒回，哪怕在拉屎", s:{社交:1,摆烂:-1}} },
+  { q:"朋友约你今晚聚餐，你第一反应？",
+    A:{t:"好啊！然后开始纠结穿什么", s:{社交:2,精致:1}},
+    B:{t:"又要出门……能不能改天", s:{社交:-1,摆烂:1}} },
+  { q:"发一条朋友圈，你会？",
+    A:{t:"精修图+写文案+分组，至少半小时", s:{精致:3,摆烂:-1}},
+    B:{t:"随手发，三分钟搞定，没人赞就算了", s:{摆烂:2,精致:-1}} },
+  { q:"工资到账那天，你先干嘛？",
+    A:{t:"还花呗，然后余额宝看看", s:{搞钱:3,摆烂:1}},
+    B:{t:"先犒劳自己一顿好的", s:{搞钱:-1,电量:1}} },
+  { q:"晚上 11 点，你通常在干嘛？",
+    A:{t:"还在刷手机，舍不得睡", s:{摆烂:2,情绪:-1}},
+    B:{t:"准备睡了，明天还要早起", s:{电量:2,摆烂:-1}} },
+  { q:"被领导当众批评，你会？",
+    A:{t:"表面没事，内心已经在写辞职信", s:{情绪:-2,摆烂:1}},
+    B:{t:"哦，知道了，然后该干嘛干嘛", s:{情绪:3,摆烂:1}} },
+  { q:"外卖凑满减，你会？",
+    A:{t:"差两块也要加个小吃凑上", s:{搞钱:3}},
+    B:{t:"直接买，懒得算", s:{搞钱:-1,电量:1}} },
+  { q:"看到同事在摸鱼，你会？",
+    A:{t:"加入，一起摸", s:{摆烂:2,社交:1}},
+    B:{t:"假装没看见，继续干活", s:{电量:1,搞钱:1}} },
+  { q:"一个人在家待一天，你会？",
+    A:{t:"爽到，谁也别找我", s:{摆烂:3,社交:-1}},
+    B:{t:"无聊，约人出门", s:{社交:2,摆烂:-1}} },
+  { q:"前任突然点赞你的朋友圈，你？",
+    A:{t:"内心翻江倒海，表面没反应", s:{情绪:-2,精致:1}},
+    B:{t:"哦，然后继续刷手机", s:{情绪:2,摆烂:1}} },
+  { q:"买一件 500 块的衣服，你会？",
+    A:{t:"纠结三天，最后还是买了", s:{搞钱:-1,精致:1}},
+    B:{t:"太贵了，等打折", s:{搞钱:3,精致:-1}} },
+  { q:"同事婚礼你要随多少？",
+    A:{t:"随便给点，人不到就行", s:{社交:-1,搞钱:1}},
+    B:{t:"包个大的，场面要好看", s:{社交:1,精致:1}} },
+  { q:"手机电量 20% 了，你会？",
+    A:{t:"慌，到处找充电宝", s:{电量:-2,摆烂:1}},
+    B:{t:"无所谓，没电再说", s:{摆烂:2,情绪:1}} },
+  { q:"同事让你帮忙带饭，忘转钱了，你？",
+    A:{t:"不好意思要，算了", s:{搞钱:-2,社交:1}},
+    B:{t:"直接要，钱的事不能含糊", s:{搞钱:2,社交:-1}} },
+  { q:"拍照发朋友圈，你会修图吗？",
+    A:{t:"必须修，脸都要推一遍", s:{精致:3}},
+    B:{t:"原相机直出，爱谁谁", s:{摆烂:2,精致:-1}} },
+  { q:"深夜失眠，你通常？",
+    A:{t:"开始想人生，越想越 emo", s:{情绪:-3,摆烂:1}},
+    B:{t:"继续刷短视频，刷到困", s:{摆烂:2,情绪:1}} },
+  { q:"朋友哭着找你倾诉，你？",
+    A:{t:"陪他聊到天亮", s:{社交:1,情绪:-1}},
+    B:{t:"先听，然后说「喝杯奶茶」", s:{情绪:2,社交:1}} },
+  { q:"周一早上闹钟响，你？",
+    A:{t:"按掉三次，弹射起床", s:{摆烂:2,电量:-1}},
+    B:{t:"准时起，新的一周", s:{电量:2,摆烂:-1}} },
+  { q:"看到喜欢的东西 99 块，你？",
+    A:{t:"买！开心最重要", s:{搞钱:-2,电量:1}},
+    B:{t:"加购物车，等降价", s:{搞钱:3}} },
+  { q:"你在朋友聚会上通常是？",
+    A:{t:"最吵的那个，控场", s:{社交:3,电量:1}},
+    B:{t:"安静听别人说，偶尔笑", s:{社交:-2,情绪:1}} },
+  { q:"开会时领导问「大家有什么意见」，你？",
+    A:{t:"低头假装记笔记", s:{摆烂:2,社交:-1}},
+    B:{t:"真的提意见，哪怕得罪人", s:{社交:1,情绪:1}} },
+  { q:"你觉得自己最像哪种动物？",
+    A:{t:"猫——独立、傲娇、不理人", s:{社交:-2,摆烂:1}},
+    B:{t:"狗——热情、粘人、话多", s:{社交:2,情绪:1}} },
+  { q:"如果用一个词形容自己，你选？",
+    A:{t:"累", s:{摆烂:2,电量:-2}},
+    B:{t:"还行", s:{情绪:2,摆烂:-1}} }
+];
+
+// ============== 逻辑 ==============
+let currentQ = 0;
+let userScores = {电量:0,社交:0,情绪:0,精致:0,摆烂:0,搞钱:0};
+
+function show(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goAccess(){ show('access'); focusFirst(); }
+
+document.querySelectorAll('.code-inputs input').forEach((inp,i)=>{
+  inp.addEventListener('input',e=>{
+    if(e.target.value.length===1 && i<3){
+      document.querySelectorAll('.code-inputs input')[i+1].focus();
+    }
+  });
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Backspace' && !e.target.value && i>0){
+      document.querySelectorAll('.code-inputs input')[i-1].focus();
+    }
+  });
+});
+function focusFirst(){ document.querySelector('.code-inputs input').focus(); }
+
+function checkCode(){
+  const inputs = document.querySelectorAll('.code-inputs input');
+  const code = Array.from(inputs).map(i=>i.value).join('');
+  const err = document.getElementById('code-error');
+  if(code.length<4){ err.textContent='请输入完整四位数字'; return; }
+  if(VALID_CODES.includes(code)){
+    err.textContent='';
+    startQuiz();
+  } else {
+    err.textContent='访问码无效，检查一下或去店铺购买';
+    inputs.forEach(i=>i.value='');
+    focusFirst();
+  }
+}
+
+function startQuiz(){
+  currentQ = 0;
+  userScores = {电量:0,社交:0,情绪:0,精致:0,摆烂:0,搞钱:0};
+  show('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  const q = QUESTIONS[currentQ];
+  document.getElementById('ptext').textContent = `第 ${currentQ+1} / ${QUESTIONS.length} 题`;
+  document.getElementById('pfill').style.width = ((currentQ)/QUESTIONS.length*100)+'%';
+  document.getElementById('qtext').textContent = q.q;
+  document.getElementById('optA').innerHTML = '<span class="emoji">A</span>' + q.A.t;
+  document.getElementById('optB').innerHTML = '<span class="emoji">B</span>' + q.B.t;
+}
+
+function choose(idx){
+  const q = QUESTIONS[currentQ];
+  const choice = idx===0 ? q.A.s : q.B.s;
+  for(let k in choice){ userScores[k] += choice[k]; }
+  currentQ++;
+  if(currentQ >= QUESTIONS.length){
+    document.getElementById('pfill').style.width = '100%';
+    showResult();
+  } else {
+    renderQ();
+  }
+}
+
+function showResult(){
+  let best = null, bestScore = -999;
+  TYPES.forEach(t=>{
+    let score = 0;
+    DIMS.forEach((d,i)=>{
+      score += -Math.abs(userScores[d]*5 - t.scores[i]);
+    });
+    if(score > bestScore){ bestScore = score; best = t; }
+  });
+
+  document.getElementById('rIcon').textContent = best.icon;
+  document.getElementById('rName').textContent = best.name;
+  document.getElementById('rSlogan').textContent = best.slogan;
+  document.getElementById('rProfile').textContent = best.profile;
+  document.getElementById('rDaily').innerHTML = best.daily.replace(/\n/g,'<br>');
+  document.getElementById('rQuote').textContent = best.quote;
+  drawRadar(best.scores);
+  show('result');
+}
+
+function drawRadar(scores){
+  const c = document.getElementById('radar');
+  const ctx = c.getContext('2d');
+  const cx = 140, cy = 140, R = 95;
+  ctx.clearRect(0,0,280,280);
+  for(let level=1; level<=4; level++){
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const ang = -Math.PI/2 + i*Math.PI/3;
+      const r = R*level/4;
+      const x = cx + r*Math.cos(ang);
+      const y = cy + r*Math.sin(ang);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = '#e0d8f0';
+    ctx.stroke();
+  }
+  for(let i=0;i<6;i++){
+    const ang = -Math.PI/2 + i*Math.PI/3;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+R*Math.cos(ang), cy+R*Math.sin(ang));
+    ctx.strokeStyle = '#e0d8f0';
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const ang = -Math.PI/2 + i*Math.PI/3;
+    const r = R * scores[i]/100;
+    const x = cx + r*Math.cos(ang);
+    const y = cy + r*Math.sin(ang);
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(124,92,191,0.25)';
+  ctx.fill();
+  ctx.strokeStyle = '#7c5cbf';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#5a4a6a';
+  ctx.font = '12px -apple-system,sans-serif';
+  ctx.textAlign = 'center';
+  for(let i=0;i<6;i++){
+    const ang = -Math.PI/2 + i*Math.PI/3;
+    const x = cx + (R+16)*Math.cos(ang);
+    const y = cy + (R+16)*Math.sin(ang);
+    ctx.fillText(DIMS[i], x, y);
+  }
+}
+
+function restart(){
+  show('cover');
+  document.querySelectorAll('.code-inputs input').forEach(i=>i.value='');
+}
+</script>
+</body>
+</html>
